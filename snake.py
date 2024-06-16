@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 
 # Snake block size
 snake_block = 10
-snake_speed = 20
+snake_speed = 15
 
 # Define fonts
 font_style = pygame.font.SysFont("bahnschrift", 25)
@@ -38,6 +38,12 @@ def our_snake(snake_block, snake_list):
 def message(msg, color):
     mesg = font_style.render(msg, True, color)
     dis.blit(mesg, [dis_width / 6, dis_height / 3])
+
+def show_score(score, high_score):
+    value = score_font.render("Your Score: " + str(score), True, yellow)
+    dis.blit(value, [0, 0])
+    high_score_value = score_font.render("High Score: " + str(high_score), True, yellow)
+    dis.blit(high_score_value, [0, 40])
 
 def gameLoop():
     game_over = False
@@ -54,6 +60,15 @@ def gameLoop():
 
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
+
+    score = 0
+    high_score = 0
+
+    try:
+        with open("high_score.txt", "r") as f:
+            high_score = int(f.read())
+    except:
+        high_score = 0
 
     while not game_over:
 
@@ -99,11 +114,13 @@ def gameLoop():
         snake_List.append(snake_Head)
         if len(snake_List) > Length_of_snake:
             del snake_List[0]
+
         for x in snake_List[:-1]:
             if x == snake_Head:
-              game_close = True
+                game_close = True
 
         our_snake(snake_block, snake_List)
+        show_score(score, high_score)
 
         pygame.display.update()
 
@@ -111,6 +128,11 @@ def gameLoop():
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
             Length_of_snake += 1
+            score += 1
+            if score > high_score:
+                high_score = score
+                with open("high_score.txt", "w") as f:
+                    f.write(str(high_score))
 
         clock.tick(snake_speed)
 
